@@ -34,3 +34,42 @@ variable "environment" {
   description = "Environnement (ex: dev, staging, prod)"
   type        = string
 }
+
+variable "sg_names" {
+  description = "Liste des noms de Security Groups à créer"
+  type        = list(string)
+  default     = ["app-sg", "db-sg"]
+}
+
+variable "sg_description" {
+  description = "Descriptions des Security Groups correspondants"
+  type        = list(string)
+  default     = ["Security Group pour l'application", "Security Group pour la base de données"]
+}
+
+variable "sg_ingress" {
+  description = "Règles ingress pour les Security Groups"
+  type = list(object({
+    from_port   = number
+    to_port     = number
+    protocol    = string
+    cidr_blocks = list(string)
+  }))
+  default = [
+    { from_port = 80, to_port = 80, protocol = "tcp", cidr_blocks = ["0.0.0.0/0"] },
+    { from_port = 443, to_port = 443, protocol = "tcp", cidr_blocks = ["0.0.0.0/0"] }
+  ]
+}
+
+variable "sg_egress" {
+  description = "Règles egress pour les Security Groups"
+  type = list(object({
+    from_port   = number
+    to_port     = number
+    protocol    = string
+    cidr_blocks = list(string)
+  }))
+  default = [
+    { from_port = 0, to_port = 0, protocol = "-1", cidr_blocks = ["0.0.0.0/0"] }
+  ]
+}
