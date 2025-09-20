@@ -113,39 +113,53 @@ resource "aws_route_table_association" "private" {
   route_table_id = aws_route_table.private.id
 }
 
+
 # Security Groups
-resource "aws_security_group" "sg" {
+resource "aws_security_group" "this" {
   for_each = { for idx, name in var.sg_names : idx => name }
 
-  name        = each.value
+  name        = "${var.project}-${var.environment}-${each.value}"
   description = var.sg_description[each.key]
   vpc_id      = aws_vpc.this.id
-  tags        = merge(var.tags, { Name = "${var.project}-${each.value}" })
+  tags        = merge(var.tags, { Environment = var.environment })
 }
 
-# Ingress rules
-resource "aws_security_group_rule" "ingress" {
-  for_each = { for idx, sg in aws_security_group.sg : idx => sg }
+# Ingress rules for public SG
+resource "aws_security_group_rule" "ingress_public" {
+  for_each = { for idx, rule in var.sg_ingress_public : idx => rule }
 
   type              = "ingress"
-  from_port         = var.sg_ingress[each.key].from_port
-  to_port           = var.sg_ingress[each.key].to_port
-  protocol          = var.sg_ingress[each.key].protocol
-  cidr_blocks       = var.sg_ingress[each.key].cidr_blocks
-  security_group_id = each.value.id
+  from_port         = each.value.from_port
+  to_port           = each.value.to_port
+  protocol          = each.value.protocol
+  cidr_blocks       = each.value.cidr_blocks
+  security_group_id = aws_security_group.this[0].id
 }
 
-# Egress rules
+# Ingress rules for private SG
+resource "aws_security_group_rule" "ingress_private" {
+  for_each = { for idx, rule in var.sg_ingress_private : idx => rule }
+
+  type              = "ingress"
+  from_port         = each.value.from_port
+  to_port           = each.value.to_port
+  protocol          = each.value.protocol
+  cidr_blocks       = each.value.cidr_blocks
+  security_group_id = aws_security_group.this[1].id
+}
+
+# Egress rules (appliquées à tous les SG)
 resource "aws_security_group_rule" "egress" {
-  for_each = { for idx, sg in aws_security_group.sg : idx => sg }
+  for_each = { for idx, rule in var.sg_egress : idx => rule }
 
   type              = "egress"
-  from_port         = var.sg_egress[each.key].from_port
-  to_port           = var.sg_egress[each.key].to_port
-  protocol          = var.sg_egress[each.key].protocol
-  cidr_blocks       = var.sg_egress[each.key].cidr_blocks
-  security_group_id = each.value.id
+  from_port         = each.value.from_port
+  to_port           = each.value.to_port
+  protocol          = each.value.protocol
+  cidr_blocks       = each.value.cidr_blocks
+  security_group_id = aws_security_group.this[each.key % length(aws_security_group.this)].id
 }
+
 
 
 
