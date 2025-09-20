@@ -10,7 +10,7 @@ variable "project" {
 
 variable "vpc_cidr" {
   type        = string
-  description = "CIDR of the VPC"
+  description = "CIDR block of the VPC"
 }
 
 variable "public_subnets" {
@@ -41,17 +41,17 @@ variable "environment" {
 variable "sg_names" {
   description = "List of Security Group names to create"
   type        = list(string)
-  default     = ["app-sg", "db-sg"]
+  default     = ["alb-sg", "ecs-sg"]
 }
 
 variable "sg_description" {
-  description = "Descriptions of Security Groups"
+  description = "Descriptions of Security Groups (ASCII only)"
   type        = list(string)
-  default     = ["Security Group for application", "Security Group for database"]
+  default     = ["Security Group for ALB", "Security Group for ECS containers"]
 }
 
 variable "sg_ingress_public" {
-  description = "Ingress rules for public security groups"
+  description = "Ingress rules for public security groups (ALB)"
   type = list(object({
     from_port   = number
     to_port     = number
@@ -61,7 +61,7 @@ variable "sg_ingress_public" {
 }
 
 variable "sg_ingress_private" {
-  description = "Ingress rules for private security groups"
+  description = "Ingress rules for private security groups (ECS)"
   type = list(object({
     from_port   = number
     to_port     = number
