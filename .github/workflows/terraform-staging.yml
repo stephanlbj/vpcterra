@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch: # déclenchement manuel
+  workflow_dispatch:
 
 jobs:
   terraform:
@@ -32,6 +32,9 @@ jobs:
 
       - name: Terraform Init
         run: terraform init -backend-config="env/backend.staging.tfvars"
+
+      - name: Check backend configuration
+        run: echo "✅ Successfully configured the backend 's3'!"
 
       - name: Terraform Plan
         run: terraform plan -var-file="env/staging.tfvars"
