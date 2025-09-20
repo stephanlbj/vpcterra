@@ -37,3 +37,34 @@ variable "environment" {
   type        = string
   description = "Nom de l'environnement (staging, preprod, prod)"
 }
+
+
+variable "sg_ingress_public" {
+  description = "Règles ingress pour les security groups publics"
+  type = list(object({
+    from_port   = number
+    to_port     = number
+    protocol    = string
+    cidr_blocks = list(string)
+  }))
+}
+
+variable "sg_ingress_private" {
+  description = "Règles ingress pour les security groups privés"
+  type = list(object({
+    from_port   = number
+    to_port     = number
+    protocol    = string
+    cidr_blocks = list(string)
+  }))
+}
+
+variable "sg_egress" {
+  description = "Règles egress communes pour tous les security groups"
+  type = list(object({
+    from_port   = number
+    to_port     = number
+    protocol    = string
+    cidr_blocks = list(string)
+  }))
+}
