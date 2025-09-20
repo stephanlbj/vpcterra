@@ -93,58 +93,54 @@ resource "aws_route_table_association" "private" {
 }
 
 # Security Groups
-resource "aws_security_group" "this" {
-  for_each = { for idx, name in var.sg_names : idx => name }
-
-  name        = "${var.project}-${var.environment}-${each.value}-sg"
-  description = var.sg_description[each.key] # Assurez-vous que c’est ASCII
+resource "aws_security_group" "alb_sg" {
+  name        = "${var.project}-${var.environment}-alb-sg"
+  description = "ALB Security Group"
   vpc_id      = aws_vpc.this.id
   tags        = merge(var.tags, { Environment = var.environment })
 }
 
-# Ingress pour SG public
-resource "aws_security_group_rule" "ingress_public" {
-  for_each = { for idx, rule in var.sg_ingress_public : idx => rule }
+resource "aws_security_group" "ecs_sg" {
+  name        = "${var.project}-${var.environment}-ecs-sg"
+  description = "ECS containers Security Group"
+  vpc_id      = aws_vpc.this.id
+  tags        = merge(var.tags, { Environment = var.environment })
+}
 
+# Ingress rules
+resource "aws_security_group_rule" "alb_ingress" {
   type              = "ingress"
-  from_port         = each.value.from_port
-  to_port           = each.value.to_port
-  protocol          = each.value.protocol
-  cidr_blocks       = each.value.cidr_blocks
-  security_group_id = aws_security_group.this["0"].id
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.alb_sg.id
 }
 
-# Ingress pour SG privé
-resource "aws_security_group_rule" "ingress_private" {
-  for_each = { for idx, rule in var.sg_ingress_private : idx => rule }
-
+resource "aws_security_group_rule" "ecs_ingress" {
   type              = "ingress"
-  from_port         = each.value.from_port
-  to_port           = each.value.to_port
-  protocol          = each.value.protocol
-  cidr_blocks       = each.value.cidr_blocks
-  security_group_id = aws_security_group.this["1"].id
+  from_port         = 3000
+  to_port           = 3000
+  protocol          = "tcp"
+  cidr_blocks       = ["10.0.0.0/16"]  # VPC CIDR
+  security_group_id = aws_security_group.ecs_sg.id
 }
 
-# Egress pour tous les SGs
-resource "aws_security_group_rule" "egress" {
-  for_each = { for idx, rule in var.sg_egress : idx => rule }
-
+# Egress rules (tout sortir)
+resource "aws_security_group_rule" "alb_egress" {
   type              = "egress"
-  from_port         = each.value.from_port
-  to_port           = each.value.to_port
-  protocol          = each.value.protocol
-  cidr_blocks       = each.value.cidr_blocks
-  security_group_id = aws_security_group.this[0].id
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.alb_sg.id
 }
 
-resource "aws_security_group_rule" "egress_db" {
-  for_each = { for idx, rule in var.sg_egress : idx => rule }
-
+resource "aws_security_group_rule" "ecs_egress" {
   type              = "egress"
-  from_port         = each.value.from_port
-  to_port           = each.value.to_port
-  protocol          = each.value.protocol
-  cidr_blocks       = each.value.cidr_blocks
-  security_group_id = aws_security_group.this[1].id
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.ecs_sg.id
 }
