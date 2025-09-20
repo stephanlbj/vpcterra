@@ -5,27 +5,27 @@ variable "aws_region" {
 
 variable "project" {
   type        = string
-  description = "Nom du projet"
+  description = "Project name"
 }
 
 variable "vpc_cidr" {
   type        = string
-  description = "CIDR du VPC"
+  description = "CIDR of the VPC"
 }
 
 variable "public_subnets" {
   type        = list(string)
-  description = "CIDR pour les subnets publics"
+  description = "CIDRs for public subnets"
 }
 
 variable "private_subnets" {
   type        = list(string)
-  description = "CIDR pour les subnets privés"
+  description = "CIDRs for private subnets"
 }
 
 variable "azs" {
   type        = list(string)
-  description = "Liste des zones de disponibilité"
+  description = "List of availability zones"
 }
 
 variable "tags" {
@@ -35,12 +35,23 @@ variable "tags" {
 
 variable "environment" {
   type        = string
-  description = "Nom de l'environnement (staging, preprod, prod)"
+  description = "Environment name (staging, preprod, prod)"
 }
 
+variable "sg_names" {
+  description = "List of Security Group names to create"
+  type        = list(string)
+  default     = ["app-sg", "db-sg"]
+}
+
+variable "sg_description" {
+  description = "Descriptions of Security Groups"
+  type        = list(string)
+  default     = ["Security Group for application", "Security Group for database"]
+}
 
 variable "sg_ingress_public" {
-  description = "Règles ingress pour les security groups publics"
+  description = "Ingress rules for public security groups"
   type = list(object({
     from_port   = number
     to_port     = number
@@ -50,7 +61,7 @@ variable "sg_ingress_public" {
 }
 
 variable "sg_ingress_private" {
-  description = "Règles ingress pour les security groups privés"
+  description = "Ingress rules for private security groups"
   type = list(object({
     from_port   = number
     to_port     = number
@@ -60,7 +71,7 @@ variable "sg_ingress_private" {
 }
 
 variable "sg_egress" {
-  description = "Règles egress communes pour tous les security groups"
+  description = "Common egress rules for all security groups"
   type = list(object({
     from_port   = number
     to_port     = number
