@@ -11,4 +11,7 @@ module "vpc" {
   azs             = var.azs
   tags            = var.tags
   environment     = var.environment 
+  sg_ingress_public = var.sg_ingress_public
+  sg_ingress_private= var.sg_ingress_private
+  sg_egress         = var.sg_egress
 }

@@ -47,29 +47,34 @@ variable "sg_description" {
   default     = ["Security Group pour l'application", "Security Group pour la base de données"]
 }
 
-variable "sg_ingress" {
-  description = "Règles ingress pour les Security Groups"
+variable "sg_ingress_public" {
+  description = "Règles ingress pour les security groups publics"
   type = list(object({
     from_port   = number
     to_port     = number
     protocol    = string
     cidr_blocks = list(string)
   }))
-  default = [
-    { from_port = 80, to_port = 80, protocol = "tcp", cidr_blocks = ["0.0.0.0/0"] },
-    { from_port = 443, to_port = 443, protocol = "tcp", cidr_blocks = ["0.0.0.0/0"] }
-  ]
+}
+
+variable "sg_ingress_private" {
+  description = "Règles ingress pour les security groups privés"
+  type = list(object({
+    from_port   = number
+    to_port     = number
+    protocol    = string
+    cidr_blocks = list(string)
+  }))
 }
 
 variable "sg_egress" {
-  description = "Règles egress pour les Security Groups"
+  description = "Règles egress communes pour tous les security groups"
   type = list(object({
     from_port   = number
     to_port     = number
     protocol    = string
     cidr_blocks = list(string)
   }))
-  default = [
-    { from_port = 0, to_port = 0, protocol = "-1", cidr_blocks = ["0.0.0.0/0"] }
-  ]
 }
+
+
