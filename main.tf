@@ -10,4 +10,5 @@ module "vpc" {
   private_subnets = var.private_subnets
   azs             = var.azs
   tags            = var.tags
+  environment     = var.environment 
 }
