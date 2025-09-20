@@ -1,14 +1,13 @@
+# VPC
 resource "aws_vpc" "this" {
   cidr_block           = var.vpc_cidr
   enable_dns_support   = true
   enable_dns_hostnames = true
 
-  tags = merge(
-    var.tags,
-    { Name = "${var.project}-vpc" }
-  )
+  tags = merge(var.tags, { Name = "${var.project}-vpc" })
 }
 
+# Subnets publics
 resource "aws_subnet" "public" {
   count = length(var.public_subnets)
 
@@ -17,12 +16,10 @@ resource "aws_subnet" "public" {
   availability_zone       = element(var.azs, count.index)
   map_public_ip_on_launch = true
 
-  tags = merge(
-    var.tags,
-    { Name = "${var.project}-public-${count.index + 1}" }
-  )
+  tags = merge(var.tags, { Name = "${var.project}-public-${count.index + 1}" })
 }
 
+# Subnets privés
 resource "aws_subnet" "private" {
   count = length(var.private_subnets)
 
@@ -30,39 +27,29 @@ resource "aws_subnet" "private" {
   cidr_block        = var.private_subnets[count.index]
   availability_zone = element(var.azs, count.index)
 
-  tags = merge(
-    var.tags,
-    { Name = "${var.project}-private-${count.index + 1}" }
-  )
+  tags = merge(var.tags, { Name = "${var.project}-private-${count.index + 1}" })
 }
-
 
 # Internet Gateway
 resource "aws_internet_gateway" "this" {
   vpc_id = aws_vpc.this.id
 
-  tags = merge(var.tags, {
-    Name = "${var.project}-${var.environment}-igw"
-  })
+  tags = merge(var.tags, { Name = "${var.project}-${var.environment}-igw" })
 }
 
-# Route Table for Public Subnets
+# Route Table pour subnets publics
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.this.id
 
-  tags = merge(var.tags, {
-    Name = "${var.project}-${var.environment}-public-rt"
-  })
+  tags = merge(var.tags, { Name = "${var.project}-${var.environment}-public-rt" })
 }
 
-# Route: all traffic goes to IGW
 resource "aws_route" "public_internet_access" {
   route_table_id         = aws_route_table.public.id
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = aws_internet_gateway.this.id
 }
 
-# Associate route table with public subnets
 resource "aws_route_table_association" "public" {
   for_each = { for idx, subnet in aws_subnet.public : idx => subnet.id }
 
@@ -70,42 +57,34 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public.id
 }
 
-# Elastic IP for NAT
+# Elastic IP pour NAT
 resource "aws_eip" "nat" {
   domain = "vpc"
 
-  tags = merge(var.tags, {
-    Name = "${var.project}-${var.environment}-eip-nat"
-  })
+  tags = merge(var.tags, { Name = "${var.project}-${var.environment}-eip-nat" })
 }
 
-# NAT Gateway (dans le premier subnet public)
+# NAT Gateway
 resource "aws_nat_gateway" "this" {
   allocation_id = aws_eip.nat.id
   subnet_id     = aws_subnet.public[0].id
 
-  tags = merge(var.tags, {
-    Name = "${var.project}-${var.environment}-nat"
-  })
+  tags = merge(var.tags, { Name = "${var.project}-${var.environment}-nat" })
 }
 
-# Route Table for Private Subnets
+# Route Table pour subnets privés
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.this.id
 
-  tags = merge(var.tags, {
-    Name = "${var.project}-${var.environment}-private-rt"
-  })
+  tags = merge(var.tags, { Name = "${var.project}-${var.environment}-private-rt" })
 }
 
-# Route: all traffic from private subnets -> NAT
 resource "aws_route" "private_outbound" {
   route_table_id         = aws_route_table.private.id
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = aws_nat_gateway.this.id
 }
 
-# Associate route table with private subnets
 resource "aws_route_table_association" "private" {
   for_each = { for idx, subnet in aws_subnet.private : idx => subnet.id }
 
@@ -113,18 +92,17 @@ resource "aws_route_table_association" "private" {
   route_table_id = aws_route_table.private.id
 }
 
-
 # Security Groups
 resource "aws_security_group" "this" {
   for_each = { for idx, name in var.sg_names : idx => name }
 
-  name        = "${var.project}-${var.environment}-${each.value}"
-  description = var.sg_description[each.key]
+  name        = "${var.project}-${var.environment}-${each.value}-sg"
+  description = var.sg_description[each.key] # Assurez-vous que c’est ASCII
   vpc_id      = aws_vpc.this.id
   tags        = merge(var.tags, { Environment = var.environment })
 }
 
-# Ingress rules for public SG
+# Ingress pour SG public
 resource "aws_security_group_rule" "ingress_public" {
   for_each = { for idx, rule in var.sg_ingress_public : idx => rule }
 
@@ -133,10 +111,10 @@ resource "aws_security_group_rule" "ingress_public" {
   to_port           = each.value.to_port
   protocol          = each.value.protocol
   cidr_blocks       = each.value.cidr_blocks
-  security_group_id = aws_security_group.this[0].id
+  security_group_id = aws_security_group.this["0"].id
 }
 
-# Ingress rules for private SG
+# Ingress pour SG privé
 resource "aws_security_group_rule" "ingress_private" {
   for_each = { for idx, rule in var.sg_ingress_private : idx => rule }
 
@@ -145,10 +123,10 @@ resource "aws_security_group_rule" "ingress_private" {
   to_port           = each.value.to_port
   protocol          = each.value.protocol
   cidr_blocks       = each.value.cidr_blocks
-  security_group_id = aws_security_group.this[1].id
+  security_group_id = aws_security_group.this["1"].id
 }
 
-# Egress rules (appliquées à tous les SG)
+# Egress pour tous les SGs
 resource "aws_security_group_rule" "egress" {
   for_each = { for idx, rule in var.sg_egress : idx => rule }
 
@@ -157,9 +135,16 @@ resource "aws_security_group_rule" "egress" {
   to_port           = each.value.to_port
   protocol          = each.value.protocol
   cidr_blocks       = each.value.cidr_blocks
-  security_group_id = aws_security_group.this[each.key % length(aws_security_group.this)].id
+  security_group_id = aws_security_group.this[0].id
 }
 
+resource "aws_security_group_rule" "egress_db" {
+  for_each = { for idx, rule in var.sg_egress : idx => rule }
 
-
-
+  type              = "egress"
+  from_port         = each.value.from_port
+  to_port           = each.value.to_port
+  protocol          = each.value.protocol
+  cidr_blocks       = each.value.cidr_blocks
+  security_group_id = aws_security_group.this[1].id
+}
