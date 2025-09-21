@@ -38,8 +38,13 @@ module "ecs" {
 }
 
 module "iam" {
-  source         = "./modules/iam"
-  user_name      = var.user_name        # injecté depuis staging.tfvars
-  project_prefix = var.project_prefix   # injecté depuis staging.tfvars
+  source = "./modules/iam"
+
+  user_name             = var.user_name
+  ecs_group_name        = var.ecs_group_name
+  ecs_policy_arn        = var.ecs_policy_arn
+  iam_roles_policy_arn  = var.iam_roles_policy_arn
+  alb_policy_arn        = var.alb_policy_arn
+  ecr_policy_arn        = var.ecr_policy_arn
 }
 

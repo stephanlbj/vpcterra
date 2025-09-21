@@ -1,11 +1,23 @@
-output "vpc_id" {
-  value = module.vpc.vpc_id
+output "ecs_deploy_group_name" {
+  value = module.iam.ecs_deploy_group_name
 }
 
-output "public_subnets_ids" {
-  value = module.vpc.public_subnets_ids
+output "attached_policies" {
+  value = module.iam.attached_policies
 }
 
-output "private_subnets_ids" {
-  value = module.vpc.private_subnets_ids
+output "cluster_id" {
+  value = module.ecs.cluster_id
+}
+
+output "cluster_name" {
+  value = module.ecs.cluster_name
+}
+
+output "ecs_task_execution_role_arn" {
+  value = module.ecs.ecs_task_execution_role_arn
+}
+
+output "ecs_service_role_arn" {
+  value = module.ecs.ecs_service_role_arn
 }
