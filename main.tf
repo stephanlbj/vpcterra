@@ -26,7 +26,7 @@ module "ec2" {
   project        = var.project
   environment    = var.environment
   vpc_id         = module.vpc.vpc_id
-  public_subnets = module.vpc.public_subnets
+  public_subnets = module.vpc.public_subnets_ids
   alb_sg_id      = module.vpc.alb_sg_id
 }
 
