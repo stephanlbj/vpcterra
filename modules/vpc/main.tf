@@ -1,13 +1,11 @@
-# VPC
-resource "aws_vpc" "this" {
+ resource "aws_vpc" "this" {
   cidr_block           = var.vpc_cidr
   enable_dns_support   = true
   enable_dns_hostnames = true
 
   tags = merge(var.tags, { Name = "${var.project}-vpc" })
 }
-
-# Subnets publics
+ 
 resource "aws_subnet" "public" {
   count = length(var.public_subnets)
 
@@ -19,7 +17,7 @@ resource "aws_subnet" "public" {
   tags = merge(var.tags, { Name = "${var.project}-public-${count.index + 1}" })
 }
 
-# Subnets privés
+ 
 resource "aws_subnet" "private" {
   count = length(var.private_subnets)
 
@@ -30,14 +28,14 @@ resource "aws_subnet" "private" {
   tags = merge(var.tags, { Name = "${var.project}-private-${count.index + 1}" })
 }
 
-# Internet Gateway
+ 
 resource "aws_internet_gateway" "this" {
   vpc_id = aws_vpc.this.id
 
   tags = merge(var.tags, { Name = "${var.project}-${var.environment}-igw" })
 }
 
-# Route Table pour subnets publics
+ 
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.this.id
 
@@ -57,22 +55,20 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public.id
 }
 
-# Elastic IP pour NAT
+ 
 resource "aws_eip" "nat" {
   domain = "vpc"
 
   tags = merge(var.tags, { Name = "${var.project}-${var.environment}-eip-nat" })
 }
 
-# NAT Gateway
 resource "aws_nat_gateway" "this" {
   allocation_id = aws_eip.nat.id
   subnet_id     = aws_subnet.public[0].id
 
   tags = merge(var.tags, { Name = "${var.project}-${var.environment}-nat" })
 }
-
-# Route Table pour subnets privés
+ 
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.this.id
 
@@ -92,7 +88,7 @@ resource "aws_route_table_association" "private" {
   route_table_id = aws_route_table.private.id
 }
 
-# Security Groups
+ 
 resource "aws_security_group" "alb_sg" {
   name        = "${var.project}-${var.environment}-alb-sg"
   description = "ALB Security Group"
@@ -107,8 +103,8 @@ resource "aws_security_group" "ecs_sg" {
   tags        = merge(var.tags, { Environment = var.environment })
 }
 
-# Ingress rules
-resource "aws_security_group_rule" "alb_ingress" {
+ 
+resource "aws_security_group_rule" "alb_ingress_http" {
   type              = "ingress"
   from_port         = 80
   to_port           = 80
@@ -117,16 +113,24 @@ resource "aws_security_group_rule" "alb_ingress" {
   security_group_id = aws_security_group.alb_sg.id
 }
 
-resource "aws_security_group_rule" "ecs_ingress" {
+resource "aws_security_group_rule" "alb_ingress_https" {
   type              = "ingress"
-  from_port         = 3000
-  to_port           = 3000
+  from_port         = 443
+  to_port           = 443
   protocol          = "tcp"
-  cidr_blocks       = ["10.0.0.0/16"]  # VPC CIDR
-  security_group_id = aws_security_group.ecs_sg.id
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.alb_sg.id
 }
-
-# Egress rules (tout sortir)
+ 
+resource "aws_security_group_rule" "ecs_ingress" {
+  type                     = "ingress"
+  from_port                = 3000
+  to_port                  = 3000
+  protocol                 = "tcp"
+  security_group_id         = aws_security_group.ecs_sg.id
+  source_security_group_id  = aws_security_group.alb_sg.id
+}
+ 
 resource "aws_security_group_rule" "alb_egress" {
   type              = "egress"
   from_port         = 0
@@ -144,3 +148,5 @@ resource "aws_security_group_rule" "ecs_egress" {
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.ecs_sg.id
 }
+
+ 
