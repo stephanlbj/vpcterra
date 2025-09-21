@@ -13,19 +13,7 @@ resource "aws_ecs_cluster" "this" {
   })
 }
 
-<<<<<<< HEAD
-# Récupère le rôle ECS Task Execution existant
-data "aws_iam_role" "ecs_task_execution_role" {
-  name = "${var.project}-${var.environment}-ecs-task-execution-role"
-}
-
-# Récupère le rôle ECS Service existant
-data "aws_iam_role" "ecs_service_role" {
-  name = "${var.project}-${var.environment}-ecs-service-role"
-}
-
-
-=======
+ 
 # Récupération du rôle ECS Task Execution existant
 data "aws_iam_role" "ecs_task_execution_role" {
   name = "${var.project}-${var.environment}-ecs-task-execution-role"
@@ -74,4 +62,4 @@ resource "aws_ecs_service" "app" {
 
   depends_on = [var.alb_target_group_arn]
 }
->>>>>>> features/add_ecr_module
+ 

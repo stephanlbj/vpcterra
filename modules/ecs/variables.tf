@@ -11,9 +11,7 @@ variable "tags" {
   default = {}
 }
 
-<<<<<<< HEAD
-
-=======
+ 
 variable "vpc_id" {
   type = string
 }
@@ -39,4 +37,4 @@ variable "ecr_repository_name" {
   type        = string
   description = "Nom du repository ECR"
 }
->>>>>>> features/add_ecr_module
+ 
