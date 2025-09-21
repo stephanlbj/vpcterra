@@ -100,3 +100,5 @@ resource "aws_iam_group_policy_attachment" "ecs_attach" {
   group      = aws_iam_group.ecs_deploy_group.name
   policy_arn = each.value
 }
+
+
