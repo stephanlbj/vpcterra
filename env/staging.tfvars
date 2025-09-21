@@ -7,9 +7,7 @@ public_subnets  = ["10.0.1.0/24", "10.0.2.0/24"]
 private_subnets = ["10.0.3.0/24", "10.0.4.0/24"]
 azs             = ["eu-north-1a", "eu-north-1b"]
 
-# IAM
-user_name       = "Stephan"
-ecs_group_name  = "nest-api-ecs-deploy-group"
+ 
 
 # Sécurité
 sg_ingress_private = [

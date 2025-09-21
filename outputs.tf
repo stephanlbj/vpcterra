@@ -1,6 +1,4 @@
-output "ecs_deploy_group_name" {
-  value = module.iam.ecs_deploy_group_name
-}
+
 
 output "cluster_id" {
   value = module.ecs.cluster_id
