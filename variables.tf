@@ -71,7 +71,6 @@ variable "sg_ingress_private" {
   }))
 }
 
-
 variable "sg_egress" {
   description = "Common egress rules for all security groups"
   type = list(object({
@@ -91,24 +90,4 @@ variable "user_name" {
 variable "ecs_group_name" {
   type        = string
   description = "Nom du groupe IAM ECS / déploiement existant"
-}
-
-variable "ecs_policy_arn" {
-  type        = string
-  description = "ARN de la policy ECS / Fargate existante"
-}
-
-variable "iam_roles_policy_arn" {
-  type        = string
-  description = "ARN de la policy IAM roles existante"
-}
-
-variable "alb_policy_arn" {
-  type        = string
-  description = "ARN de la policy ALB existante"
-}
-
-variable "ecr_policy_arn" {
-  type        = string
-  description = "ARN de la policy ECR existante"
 }
