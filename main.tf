@@ -35,7 +35,7 @@ module "ecs" {
   project     = var.project
   environment = var.environment
   tags        = var.tags
-
+  vpc_id = module.vpc.vpc_id
   ecr_repository_name  = var.ecr_repository_name
   ecs_sg_id            = module.vpc.ecs_sg_id        # SG ECS récupéré depuis le module VPC
   alb_sg_id            = module.vpc.alb_sg_id        # SG ALB récupéré depuis le module VPC
