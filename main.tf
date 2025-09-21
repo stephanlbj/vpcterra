@@ -37,3 +37,9 @@ module "ecs" {
   tags        = var.tags
 }
 
+module "iam" {
+  source         = "./modules/iam"
+  user_name      = var.user_name        # injecté depuis staging.tfvars
+  project_prefix = var.project_prefix   # injecté depuis staging.tfvars
+}
+
