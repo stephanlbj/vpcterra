@@ -20,3 +20,13 @@ module "vpc" {
   sg_ingress_private = var.sg_ingress_private  # pour ECS containers
   sg_egress          = var.sg_egress
 }
+
+module "ec2" {
+  source         = "./modules/ec2"
+  project        = var.project
+  environment    = var.environment
+  vpc_id         = module.vpc.vpc_id
+  public_subnets = module.vpc.public_subnets
+  alb_sg_id      = module.vpc.alb_sg_id
+}
+
