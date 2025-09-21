@@ -25,3 +25,12 @@ environment    = "staging"
 tags = {
   Environment = "staging"
 }
+
+
+# ECR
+ecr_repository_name = "nest-api-staging-repo"
+
+# ECS / ALB
+ecs_sg_id           = "ecs_sg_id_placeholder"         # SG pour containers ECS
+alb_sg_id           = "alb_sg_id_placeholder"         # SG pour ALB
+alb_target_group_arn = "alb_target_group_arn_placeholder" # 
