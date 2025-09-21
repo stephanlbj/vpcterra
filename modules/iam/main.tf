@@ -25,5 +25,5 @@ data "aws_iam_policy" "ecr_policy" {
 # Ajoute l'utilisateur existant au groupe existant
 resource "aws_iam_user_group_membership" "user_membership" {
   user   = var.user_name
-  groups = [data.aws_iam_group.ecs_deploy_group.name]
+    groups = [data.aws_iam_group.ecs_deploy_group.group_name]
 }
