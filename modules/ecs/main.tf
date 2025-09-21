@@ -13,8 +13,7 @@ resource "aws_ecs_cluster" "this" {
   })
 }
 
- 
-# Récupération du rôle ECS Task Execution existant
+# Récupère le rôle ECS Task Execution existant
 data "aws_iam_role" "ecs_task_execution_role" {
   name = "${var.project}-${var.environment}-ecs-task-execution-role"
 }
@@ -33,10 +32,7 @@ resource "aws_ecs_task_definition" "app" {
     name      = "app"
     image     = var.ecr_repository_name
     essential = true
-    portMappings = [{
-      containerPort = 3000
-      hostPort      = 3000
-    }]
+    portMappings = [{ containerPort = 3000, hostPort = 3000 }]
   }])
 }
 
@@ -59,7 +55,5 @@ resource "aws_ecs_service" "app" {
     container_name   = "app"
     container_port   = 3000
   }
-
-  depends_on = [var.alb_target_group_arn]
 }
- 
+

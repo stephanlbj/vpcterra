@@ -4,7 +4,6 @@ provider "aws" {
 
 module "vpc" {
   source          = "./modules/vpc"
-
   project         = var.project
   vpc_cidr        = var.vpc_cidr
   public_subnets  = var.public_subnets
@@ -12,22 +11,16 @@ module "vpc" {
   azs             = var.azs
   tags            = var.tags
   environment     = var.environment
-
-  # Security Groups
   sg_names           = var.sg_names
   sg_description     = var.sg_description
-  sg_ingress_public  = var.sg_ingress_public   # pour ALB
-  sg_ingress_private = var.sg_ingress_private  # pour ECS containers
+  sg_ingress_public  = var.sg_ingress_public
+  sg_ingress_private = var.sg_ingress_private
   sg_egress          = var.sg_egress
 }
 
-module "ec2" {
-  source         = "./modules/ec2"
-  project        = var.project
-  environment    = var.environment
-  vpc_id         = module.vpc.vpc_id
-  public_subnets = module.vpc.public_subnets_ids
-  alb_sg_id      = module.vpc.alb_sg_id
+module "ecr" {
+  source = "./modules/ecr"
+  repository_name = var.ecr_repository_name
 }
 
 module "ecs" {
@@ -35,19 +28,9 @@ module "ecs" {
   project     = var.project
   environment = var.environment
   tags        = var.tags
-  vpc_id = module.vpc.vpc_id
-  ecr_repository_name  = var.ecr_repository_name
-  ecs_sg_id            = module.vpc.ecs_sg_id        # SG ECS récupéré depuis le module VPC
-  alb_sg_id            = module.vpc.alb_sg_id        # SG ALB récupéré depuis le module VPC
-  alb_target_group_arn = module.alb.target_group_arn # Target Group ARN
-  private_subnets      = module.vpc.private_subnets_ids
+  vpc_id      = module.vpc.vpc_id
+  private_subnets = module.vpc.private_subnets_ids
+  ecs_sg_id      = module.vpc.ecs_sg_id
+  alb_target_group_arn = var.alb_target_group_arn
+  ecr_repository_name  = module.ecr.repository_url
 }
-
-module "ecr" {
-  source      = "./modules/ecr"
-  project     = var.project
-  environment = var.environment
-  tags        = var.tags
-}
-
-
