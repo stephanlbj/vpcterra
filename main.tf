@@ -30,3 +30,10 @@ module "ec2" {
   alb_sg_id      = module.vpc.alb_sg_id
 }
 
+module "ecs" {
+  source      = "./modules/ecs"
+  project     = var.project
+  environment = var.environment
+  tags        = var.tags
+}
+
