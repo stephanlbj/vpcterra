@@ -2,10 +2,6 @@ output "ecs_deploy_group_name" {
   value = module.iam.ecs_deploy_group_name
 }
 
-output "attached_policies" {
-  value = module.iam.attached_policies
-}
-
 output "cluster_id" {
   value = module.ecs.cluster_id
 }
