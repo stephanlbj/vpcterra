@@ -37,9 +37,4 @@ module "ecs" {
   tags        = var.tags
 }
 
-module "iam" {
-  source = "./modules/iam"
 
-  user_name      = var.user_name
-  ecs_group_name = var.ecs_group_name
-}

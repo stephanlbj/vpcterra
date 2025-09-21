@@ -81,13 +81,4 @@ variable "sg_egress" {
   }))
 }
 
-# Variables pour IAM existant
-variable "user_name" {
-  type        = string
-  description = "Nom de l'utilisateur IAM existant"
-}
 
-variable "ecs_group_name" {
-  type        = string
-  description = "Nom du groupe IAM ECS / déploiement existant"
-}
