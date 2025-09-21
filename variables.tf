@@ -81,4 +81,23 @@ variable "sg_egress" {
   }))
 }
 
+variable "ecr_repository_name" {
+  type        = string
+  description = "Nom du repository ECR"
+}
+
+variable "ecs_sg_id" {
+  type        = string
+  description = "Security Group ID pour ECS containers"
+}
+
+variable "alb_sg_id" {
+  type        = string
+  description = "Security Group ID pour ALB"
+}
+
+variable "alb_target_group_arn" {
+  type        = string
+  description = "ARN du Target Group de l'ALB"
+}
 

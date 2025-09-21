@@ -15,3 +15,23 @@ output "ecs_task_execution_role_arn" {
 output "ecs_service_role_arn" {
   value = module.ecs.ecs_service_role_arn
 }
+
+output "ecr_url" {
+  value = module.ecr.ecr_url
+}
+
+output "ecs_cluster_name" {
+  value = module.ecs.cluster_name
+}
+
+output "ecs_cluster_id" {
+  value = module.ecs.cluster_id
+}
+
+output "ecs_task_definition_arn" {
+  value = module.ecs.ecs_task_definition_arn
+}
+
+output "ecs_service_name" {
+  value = module.ecs.ecs_service_name
+}
