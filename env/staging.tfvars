@@ -7,7 +7,7 @@ azs             = ["eu-north-1a", "eu-north-1b"]
  
 
 sg_ingress_private = [
-  { from_port = 3000, to_port = 3000, protocol = "tcp", cidr_blocks = ["10.0.0.0/16"] }
+  { from_port = 3000, to_port = 3000, protocol = "tcp", source_security_group = "alb_sg" }
 ]
 
 sg_ingress_public = [
